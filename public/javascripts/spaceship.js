@@ -124,6 +124,7 @@ function renderScene(actors) {
   paintSpaceShip(actors.spaceship.x, actors.spaceship.y);
   paintEnemies(actors.enemies);
   paintHeroShots(actors.heroShots, actors.enemies);
+  paintScore(actors.score);
 }
 
 
@@ -153,12 +154,20 @@ var HeroShots = Rx.Observable
 	  return shotArray;
 	}, []);
 
+var ScoreSubject = new Rx.BehaviorSubject(0);
+var score = ScoreSubject.scan(function (prev, cur) {
+  return prev + cur;
+}, 0);
+
+
 var SHOOTING_SPEED = 15;
+var SCORE_INCREASE = 10;
 function paintHeroShots(heroShots, enemies) {
   heroShots.forEach(function(shot, i) {
 	for(var l=0; l < enemies.length; l++) {
 	  var enemy = enemies[l];
 	  if (!enemy.isDead && collision(shot, enemy)) {
+		ScoreSubject.onNext(SCORE_INCREASE);
 		enemy.isDead = true;
 		shot.x = shot.y = -100;
 		break;
@@ -182,15 +191,23 @@ function gameOver(ship, enemies) {
   });
 }
 
+function paintScore(score) {
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 26px sans-serif';
+  ctx.fillText('Score: ' + score, 40, 43);
+}
+
+
 Rx.Observable
 	.combineLatest(
-	  StarStream, SpaceShip, Enemies, HeroShots,
-	  function(stars, spaceship, enemies, heroShots) {
+	  StarStream, SpaceShip, Enemies, HeroShots, score,
+	  function(stars, spaceship, enemies, heroShots, score) {
 		return {
 		  stars: stars,
 		  spaceship: spaceship,
 		  enemies: enemies,
-		  heroShots: heroShots
+		  heroShots: heroShots,
+		  score: score,
 		};
 	  })
   .sample(SPEED)
