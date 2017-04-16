@@ -64,12 +64,6 @@ function paintSpaceShip(x, y) {
   drawTriangle(x, y, 20, '#ff0000', 'up');
 }
 
-function renderScene(actors) {
-  paintStars(actors.stars);
-  paintSpaceShip(actors.spaceship.x, actors.spaceship.y);
-}
-
-
 var ENEMY_FREQ = 1500;
 var Enemies = Rx.Observable.interval(ENEMY_FREQ)
 	.scan(function(enemyArray) {
@@ -86,6 +80,21 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+function paintEnemies(enemies) {
+  enemies.forEach(function(enemy) {
+	enemy.y += 5;
+	enemy.x += getRandomInt(-15, 15);
+
+	drawTriangle(enemy.x, enemy.y, 20, '#00ff00', 'down');
+  });
+}
+
+function renderScene(actors) {
+  paintStars(actors.stars);
+  paintSpaceShip(actors.spaceship.x, actors.spaceship.y);
+  paintEnemies(actors.enemies);
+}
+
 var Game = Rx.Observable
 	.combineLatest(
 	  StarStream, SpaceShip, Enemies,
@@ -95,6 +104,6 @@ var Game = Rx.Observable
 		  spaceship: spaceship,
 		  enemies: enemies
 		};
-	  });
-
-Game.subscribe(renderScene);
+	  })
+	.sample(SPEED)
+	.subscribe(renderScene);
