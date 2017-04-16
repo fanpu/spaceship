@@ -170,7 +170,19 @@ function paintHeroShots(heroShots, enemies) {
   });
 }
 
-var Game = Rx.Observable
+function gameOver(ship, enemies) {
+  return enemies.some(function(enemy) {
+	if(collision(ship, enemy)) {
+	  return true;
+	}
+
+	return enemy.shots.some(function(shot) {
+	  return collision(ship, shot);	  
+	});
+  });
+}
+
+Rx.Observable
 	.combineLatest(
 	  StarStream, SpaceShip, Enemies, HeroShots,
 	  function(stars, spaceship, enemies, heroShots) {
@@ -181,5 +193,8 @@ var Game = Rx.Observable
 		  heroShots: heroShots
 		};
 	  })
-	.sample(SPEED)
-	.subscribe(renderScene);
+  .sample(SPEED)
+  .takeWhile(function(actors) {
+	return gameOver(actors.spaceship, actors.enemies) === false;
+  })
+  .subscribe(renderScene);
