@@ -112,8 +112,12 @@ var HeroShots = Rx.Observable
 	  playerFiring,
 	  SpaceShip,
 	  function(shotEvents, spaceShip) {
-		return { x: spaceShip.x };
+		return {
+		  timestamp: shotEvents.timestamp,
+		  x: spaceShip.x
+		};
 	  })
+	.distinctUntilChanged(function(shot) { return shot.timestamp; })
 	.scan(function(shotArray, shot) {
 	  shotArray.push({x: shot.x, y: HERO_Y});
 	  return shotArray;
@@ -126,6 +130,8 @@ function paintHeroShots(heroShots) {
 	drawTriangle(shot.x, shot.y, 5, '#ffff00', 'up');
   });
 }
+
+
 
 var Game = Rx.Observable
 	.combineLatest(
