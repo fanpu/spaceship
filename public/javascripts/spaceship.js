@@ -25,9 +25,6 @@ var StarStream = Rx.Observable.range(1, STAR_NUMBER)
 		});
 		return starArray;
 	  });
-	})
-	.subscribe(function(starArray) {
-	  paintStars(starArray);
 	});
 
 function paintStars(stars) {
@@ -40,7 +37,7 @@ function paintStars(stars) {
 }
 
 var HERO_Y = canvas.height - 30;
-var mouseMove = Rx.observable.fromEvent(canvas, 'mousemove');
+var mouseMove = Rx.Observable.fromEvent(canvas, 'mousemove');
 var SpaceShip = mouseMove
 	.map(function(event) {
 	  return {
@@ -54,7 +51,7 @@ var SpaceShip = mouseMove
 	});
 
 function drawTriangle(x, y, width, color, direction) {
-  cx.fillStyle = color;
+  ctx.fillStyle = color;
   ctx.beginPath();
   ctx.moveTo(x - width, y);
   ctx.lineTo(x, direction === 'up' ? y - width : y + width);
@@ -66,3 +63,23 @@ function drawTriangle(x, y, width, color, direction) {
 function paintSpaceShip(x, y) {
   drawTriangle(x, y, 20, '#ff0000', 'up');
 }
+
+function renderScene(actors) {
+  paintStars(actors.stars);
+  paintSpaceShip(actors.spaceship.x, actors.spaceship.y);
+}
+
+var Game = Rx.Observable
+	.combineLatest(
+	  StarStream, SpaceShip,
+	  function(stars, spaceship) {
+		return { stars: stars, spaceship: spaceship };
+	  });
+
+Game.subscribe(renderScene);
+
+var ENEMY_FREQ = 1500;
+var Enemies = Rx.Observable.interval(ENEMY_FREQ)
+	.scan(function(enemyArray) {
+	  
+	}
