@@ -52,3 +52,17 @@ var SpaceShip = mouseMove
 	  x: canvas.width / 2,
 	  y: HERO_Y
 	});
+
+function drawTriangle(x, y, width, color, direction) {
+  cx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(x - width, y);
+  ctx.lineTo(x, direction === 'up' ? y - width : y + width);
+  ctx.lineTo(x + width, y);
+  ctx.lineTo(x - width, y);
+  ctx.fill();
+}
+
+function paintSpaceShip(x, y) {
+  drawTriangle(x, y, 20, '#ff0000', 'up');
+}
