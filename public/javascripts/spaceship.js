@@ -82,13 +82,17 @@ var Enemies = Rx.Observable.interval(ENEMY_FREQ)
 	  return enemyArray;
 	}, []);
 
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 var Game = Rx.Observable
 	.combineLatest(
-	  StarStream, SpaceShip, Enemies
+	  StarStream, SpaceShip, Enemies,
 	  function(stars, spaceship, enemies) {
 		return {
 		  stars: stars,
-		  spaceship: spaceship
+		  spaceship: spaceship,
 		  enemies: enemies
 		};
 	  });
