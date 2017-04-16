@@ -69,17 +69,28 @@ function renderScene(actors) {
   paintSpaceShip(actors.spaceship.x, actors.spaceship.y);
 }
 
-var Game = Rx.Observable
-	.combineLatest(
-	  StarStream, SpaceShip,
-	  function(stars, spaceship) {
-		return { stars: stars, spaceship: spaceship };
-	  });
-
-Game.subscribe(renderScene);
 
 var ENEMY_FREQ = 1500;
 var Enemies = Rx.Observable.interval(ENEMY_FREQ)
 	.scan(function(enemyArray) {
-	  
-	}
+	  var enemy = {
+		x: parseInt(Math.random() * canvas.width),
+		y: -30,
+	  };
+
+	  enemyArray.push(enemy);
+	  return enemyArray;
+	}, []);
+
+var Game = Rx.Observable
+	.combineLatest(
+	  StarStream, SpaceShip, Enemies
+	  function(stars, spaceship, enemies) {
+		return {
+		  stars: stars,
+		  spaceship: spaceship
+		  enemies: enemies
+		};
+	  });
+
+Game.subscribe(renderScene);
